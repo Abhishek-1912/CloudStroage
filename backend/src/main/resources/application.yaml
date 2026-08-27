@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/cloudstorage
+    username: postgres
+    password: abhi1912
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+    show-sql: true
+
+server:
+  port: 8080
+
+jwt:
+  secret: "ThisIsADevSecretKeyForCloudStorageJWTSigning123456"
+  expiration-ms: 86400000
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+
+supabase:
+  url: "https://xbotncyruawfkygnwwjp.supabase.co"
+  service-key: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inhib3RuY3lydWF3Zmt5Z253d2pwIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4NzgwMDUwOCwiZXhwIjoyMTAzMzc2NTA4fQ.EiTRVsa7foKi6rkMma4-VWIYD05lOsjLxRGickgZtS0"
+  bucket: "files"
