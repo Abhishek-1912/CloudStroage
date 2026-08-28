@@ -10,4 +10,6 @@ public interface FolderRepository extends JpaRepository<Folder, UUID> {
     List<Folder> findByOwnerAndParentFolderAndTrashedFalse(User owner, Folder parentFolder);
     List<Folder> findByOwnerAndParentFolderIsNullAndTrashedFalse(User owner);
     List<Folder> findByOwnerAndTrashedTrue(User owner);
+        org.springframework.data.domain.Page<Folder> findByOwnerAndTrashedFalseAndNameContainingIgnoreCase(
+            User owner, String name, org.springframework.data.domain.Pageable pageable);
 }

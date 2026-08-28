@@ -5,8 +5,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
+
 @Entity
-@Table(name = "files")
+@Table(name = "files", indexes = {
+        @Index(name = "idx_files_owner", columnList = "owner_id"),
+        @Index(name = "idx_files_owner_trashed", columnList = "owner_id, is_trashed"),
+        @Index(name = "idx_files_name", columnList = "name")
+})
 @Getter @Setter
 @NoArgsConstructor @AllArgsConstructor
 @Builder

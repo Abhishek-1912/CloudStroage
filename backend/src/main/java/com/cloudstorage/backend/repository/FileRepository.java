@@ -11,4 +11,7 @@ public interface FileRepository extends JpaRepository<FileEntity, UUID> {
     List<FileEntity> findByOwnerAndFolderAndTrashedFalse(User owner, Folder folder);
     List<FileEntity> findByOwnerAndFolderIsNullAndTrashedFalse(User owner);
     List<FileEntity> findByOwnerAndTrashedTrue(User owner);
+
+        org.springframework.data.domain.Page<FileEntity> findByOwnerAndTrashedFalseAndNameContainingIgnoreCase(
+            User owner, String name, org.springframework.data.domain.Pageable pageable);
 }
