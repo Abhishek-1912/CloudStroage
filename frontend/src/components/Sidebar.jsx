@@ -1,71 +1,37 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { HomeIcon, ShareIcon, StarIcon, TrashIcon } from './icons';
 
-export default function Sidebar() {
-  const navigate = useNavigate();
-  const [open, setOpen] = useState(false);
+const navItems = [
+  { to: '/drive', label: 'My Drive', Icon: HomeIcon },
+  { to: '/shared', label: 'Shared with me', Icon: ShareIcon },
+  { to: '/starred', label: 'Starred', Icon: StarIcon },
+  { to: '/trash', label: 'Trash', Icon: TrashIcon },
+];
 
-  const handleLogout = () => {
-    localStorage.removeItem('token');
-    navigate('/login');
-  };
+export default function Sidebar({ onNavigate }) {
+  const location = useLocation();
 
   return (
-    <>
-      {/* Mobile top bar */}
-      <div className="md:hidden flex items-center justify-between p-4 border-b border-slate-200 bg-white">
-        <h1 className="text-lg font-semibold text-slate-900">Cloud Storage</h1>
-        <button
-          onClick={() => setOpen(!open)}
-          className="text-slate-600 text-2xl leading-none px-2"
-        >
-          {open ? '✕' : '☰'}
-        </button>
-      </div>
-
-      {/* Sidebar: fixed on desktop, slide-down on mobile */}
-      <aside
-        className={`${
-          open ? 'block' : 'hidden'
-        } md:block w-full md:w-56 bg-white border-r border-slate-200 md:h-screen flex flex-col p-4`}
-      >
-        <h1 className="hidden md:block text-lg font-semibold text-slate-900 mb-6">
-          Cloud Storage
-        </h1>
-
-        <nav className="flex-1 space-y-1">
-          <Link
-            to="/drive"
-            onClick={() => setOpen(false)}
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-700 bg-slate-100"
-          >
-            My Drive
-          </Link>
-
-          <Link
-  to="/starred"
-  onClick={() => setOpen(false)}
-  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-50"
->
-  Starred
-</Link>
-
-          <Link
-            to="/trash"
-            onClick={() => setOpen(false)}
-            className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-50"
-          >
-            Trash
-          </Link>
-        </nav>
-
-        <button
-          onClick={handleLogout}
-          className="text-sm text-slate-500 hover:text-slate-800 text-left px-3 py-2"
-        >
-          Log out
-        </button>
-      </aside>
-    </>
+    <aside className="w-64 md:w-56 bg-white border-r border-slate-200 h-full md:h-[calc(100vh-4rem)] flex flex-col p-4">
+      <nav className="flex-1 space-y-1">
+        {navItems.map(({ to, label, Icon }) => {
+          const active =
+            location.pathname === to || (to === '/drive' && location.pathname.startsWith('/drive'));
+          return (
+            <Link
+              key={to}
+              to={to}
+              onClick={onNavigate}
+              className={`flex items-center gap-3 px-3 py-2 rounded-full text-sm font-medium transition ${
+                active ? 'bg-blue-50 text-blue-700' : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+              {label}
+            </Link>
+          );
+        })}
+      </nav>
+    </aside>
   );
 }

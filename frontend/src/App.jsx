@@ -5,6 +5,7 @@ import DrivePage from './pages/DrivePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import TrashPage from './pages/TrashPage';
 import StarredPage from './pages/StarredPage';
+import SharedPage from './pages/SharedPage';
 
 function App() {
   return (
@@ -45,6 +46,15 @@ function App() {
   element={
     <ProtectedRoute>
       <StarredPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/shared"
+  element={
+    <ProtectedRoute>
+      <SharedPage />
     </ProtectedRoute>
   }
 />

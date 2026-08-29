@@ -1,25 +1,19 @@
 import { useParams } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState, useEffect } from 'react';
-import Sidebar from '../components/Sidebar';
+import PageLayout from '../components/PageLayout';
 import Breadcrumbs from '../components/Breadcrumbs';
 import FolderGrid from '../components/FolderGrid';
+import FolderListView from '../components/FolderListView';
+import ViewToggle from '../components/ViewToggle';
 import CreateFolderButton from '../components/CreateFolderButton';
 import UploadZone from '../components/UploadZone';
 import ShareModal from '../components/ShareModal';
-import SearchBar from '../components/SearchBar';
 import SortControl from '../components/SortControl';
-import { getRootContents, getFolderContents } from '../services/folderService';
-import { search } from '../services/searchService';
-
-import { renameFolder, trashFolder } from '../services/folderService';
+import { getRootContents, getFolderContents, renameFolder, trashFolder } from '../services/folderService';
 import { renameFile, trashFile } from '../services/fileService';
 import { starFile, unstarFile, getStarred } from '../services/starService';
-
-import FolderListView from '../components/FolderListView';
-import ViewToggle from '../components/ViewToggle';
-
-
+import { search } from '../services/searchService';
 
 function sortItems(items, sortBy) {
   const copy = [...items];
@@ -39,18 +33,17 @@ export default function DrivePage() {
   const [previewFile, setPreviewFile] = useState(null);
   const [sharingFile, setSharingFile] = useState(null);
   const [sortBy, setSortBy] = useState('name');
+  const [view, setView] = useState('grid');
   const [searchResults, setSearchResults] = useState(null);
   const [searching, setSearching] = useState(false);
-  const queryClient = useQueryClient();
   const [starredIds, setStarredIds] = useState(new Set());
-
-  const [view, setView] = useState('grid');
+  const queryClient = useQueryClient();
 
   useEffect(() => {
-  getStarred().then((res) => {
-    setStarredIds(new Set(res.data.map((f) => f.id)));
-  });
-}, []);
+    getStarred().then((res) => {
+      setStarredIds(new Set(res.data.map((f) => f.id)));
+    });
+  }, []);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['folder', folderId ?? 'root'],
@@ -91,103 +84,81 @@ export default function DrivePage() {
     }
   };
 
-  const handleClearSearch = () => {
-    setSearchResults(null);
-  };
+  const handleClearSearch = () => setSearchResults(null);
 
   const handleRenameFolder = async (id, newName) => {
-  await renameFolder(id, newName);
-  queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
-};
+    await renameFolder(id, newName);
+    queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
+  };
 
-const handleTrashFolder = async (id) => {
-  await trashFolder(id);
-  queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
-};
+  const handleTrashFolder = async (id) => {
+    await trashFolder(id);
+    queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
+  };
 
-const handleRenameFile = async (id, newName) => {
-  await renameFile(id, newName);
-  queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
-};
+  const handleRenameFile = async (id, newName) => {
+    await renameFile(id, newName);
+    queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
+  };
 
-const handleTrashFile = async (id) => {
-  await trashFile(id);
-  queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
-};
+  const handleTrashFile = async (id) => {
+    await trashFile(id);
+    queryClient.invalidateQueries({ queryKey: ['folder', folderId ?? 'root'] });
+  };
 
-const handleStarToggle = async (file) => {
-  if (starredIds.has(file.id)) {
-    await unstarFile(file.id);
-    setStarredIds((prev) => {
-      const next = new Set(prev);
-      next.delete(file.id);
-      return next;
-    });
-  } else {
-    await starFile(file.id);
-    setStarredIds((prev) => new Set(prev).add(file.id));
-  }
-};
+  const handleStarToggle = async (file) => {
+    if (starredIds.has(file.id)) {
+      await unstarFile(file.id);
+      setStarredIds((prev) => {
+        const next = new Set(prev);
+        next.delete(file.id);
+        return next;
+      });
+    } else {
+      await starFile(file.id);
+      setStarredIds((prev) => new Set(prev).add(file.id));
+    }
+  };
 
   const activeFolders = searchResults ? searchResults.folders : data?.data?.folders ?? [];
-const activeFiles = (searchResults ? searchResults.files : data?.data?.files ?? []).map((f) => ({
-  ...f,
-  starred: starredIds.has(f.id),
-}));
+  const activeFiles = (searchResults ? searchResults.files : data?.data?.files ?? []).map((f) => ({
+    ...f,
+    starred: starredIds.has(f.id),
+  }));
 
+  const gridProps = {
+    folders: sortItems(activeFolders, sortBy),
+    files: sortItems(activeFiles, sortBy),
+    onFileClick: handleFileClick,
+    onShareClick: setSharingFile,
+    onRenameFolder: handleRenameFolder,
+    onTrashFolder: handleTrashFolder,
+    onRenameFile: handleRenameFile,
+    onTrashFile: handleTrashFile,
+    onStarToggle: handleStarToggle,
+  };
 
   return (
-<div className="flex flex-col md:flex-row">
-    
-          <Sidebar />
-      <main className="flex-1 p-8">
-        <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
+    <PageLayout showSearch onSearch={handleSearch} onClear={handleClearSearch}>
+      {!searchResults && <Breadcrumbs trail={trail} />}
+      {searchResults && (
+        <p className="text-sm text-slate-500 mb-4">
+          Showing search results ({searchResults.totalFolders + searchResults.totalFiles} found)
+        </p>
+      )}
 
-        {!searchResults && <Breadcrumbs trail={trail} />}
-        {searchResults && (
-          <p className="text-sm text-slate-500 mb-4">
-            Showing search results ({searchResults.totalFolders + searchResults.totalFiles} found)
-          </p>
-        )}
+      {!searchResults && <CreateFolderButton parentFolderId={folderId} />}
+      {!searchResults && <UploadZone folderId={folderId} />}
 
-        {!searchResults && <CreateFolderButton parentFolderId={folderId} />}
-        {!searchResults && <UploadZone folderId={folderId} />}
+      <div className="flex items-center justify-between mb-4">
+        <SortControl sortBy={sortBy} onChange={setSortBy} />
+        <ViewToggle view={view} onChange={setView} />
+      </div>
 
-        
-        <div className="flex items-center justify-between mb-4">
-  <SortControl sortBy={sortBy} onChange={setSortBy} />
-  <ViewToggle view={view} onChange={setView} />
-</div>
+      {(isLoading || searching) && <p className="text-slate-400 text-sm">Loading...</p>}
+      {error && <p className="text-red-600 text-sm">Failed to load folder contents.</p>}
 
-        {(isLoading || searching) && <p className="text-slate-400 text-sm">Loading...</p>}
-        {error && <p className="text-red-600 text-sm">Failed to load folder contents.</p>}
-
-{view === 'grid' ? (
-  <FolderGrid
-    folders={sortItems(activeFolders, sortBy)}
-    files={sortItems(activeFiles, sortBy)}
-    onFileClick={handleFileClick}
-    onShareClick={setSharingFile}
-    onRenameFolder={handleRenameFolder}
-    onTrashFolder={handleTrashFolder}
-    onRenameFile={handleRenameFile}
-    onTrashFile={handleTrashFile}
-    onStarToggle={handleStarToggle}
-  />
-) : (
-  <FolderListView
-    folders={sortItems(activeFolders, sortBy)}
-    files={sortItems(activeFiles, sortBy)}
-    onFileClick={handleFileClick}
-    onShareClick={setSharingFile}
-    onRenameFolder={handleRenameFolder}
-    onTrashFolder={handleTrashFolder}
-    onRenameFile={handleRenameFile}
-    onTrashFile={handleTrashFile}
-    onStarToggle={handleStarToggle}
-  />
-)}
-      </main>
+      {view === 'grid' ? <FolderGrid {...gridProps} /> : <FolderListView {...gridProps} />}
 
       {previewFile && (
         <div
@@ -208,23 +179,15 @@ const activeFiles = (searchResults ? searchResults.files : data?.data?.files ?? 
               </button>
             </div>
             {previewFile.mimeType?.startsWith('image/') ? (
-              <img
-                src={previewFile.downloadUrl}
-                alt={previewFile.name}
-                className="max-w-full max-h-[75vh]"
-              />
+              <img src={previewFile.downloadUrl} alt={previewFile.name} className="max-w-full max-h-[75vh]" />
             ) : (
-              <iframe
-                src={previewFile.downloadUrl}
-                title={previewFile.name}
-                className="w-[80vw] h-[75vh]"
-              />
+              <iframe src={previewFile.downloadUrl} title={previewFile.name} className="w-[80vw] h-[75vh]" />
             )}
           </div>
         </div>
       )}
 
       {sharingFile && <ShareModal file={sharingFile} onClose={() => setSharingFile(null)} />}
-    </div>
+    </PageLayout>
   );
 }

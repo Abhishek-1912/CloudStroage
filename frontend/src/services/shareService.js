@@ -9,3 +9,5 @@ export const revokeShare = (shareId) => api.delete(`/api/shares/${shareId}`);
 
 export const createLinkShare = (fileId, password, expiresInHours) =>
   api.post('/api/link-shares', { fileId, password: password || null, expiresInHours: expiresInHours || null });
+
+export const getSharedWithMe = () => api.get('/api/shares/shared-with-me');
