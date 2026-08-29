@@ -20,8 +20,14 @@ export default function TrashPage() {
     queryClient.invalidateQueries({ queryKey: ['trash'] });
   };
 
+  const deleteFileForever = async (id) => {
+    if (!confirm('Permanently delete this file? This cannot be undone.')) return;
+    await api.delete(`/api/files/${id}`);
+    queryClient.invalidateQueries({ queryKey: ['trash'] });
+  };
+
   return (
-    <div className="flex">
+    <div className="flex" flex-col md:flex-row>
       <Sidebar />
       <main className="flex-1 p-8">
         <h2 className="text-xl font-semibold text-slate-900 mb-4">Trash</h2>
@@ -55,12 +61,20 @@ export default function TrashPage() {
                 className="flex items-center justify-between p-3 border border-slate-200 rounded-lg"
               >
                 <span className="text-sm text-slate-700">📄 {file.name}</span>
-                <button
-                  onClick={() => restoreFile(file.id)}
-                  className="text-sm text-blue-600 hover:underline"
-                >
-                  Restore
-                </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => restoreFile(file.id)}
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Restore
+                  </button>
+                  <button
+                    onClick={() => deleteFileForever(file.id)}
+                    className="text-sm text-red-600 hover:underline"
+                  >
+                    Delete forever
+                  </button>
+                </div>
               </div>
             ))}
           </div>
