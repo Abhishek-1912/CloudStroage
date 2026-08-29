@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface ShareRepository extends JpaRepository<Share, UUID> {
     List<Share> findByFile(FileEntity file);
     Optional<Share> findByFileAndSharedWithUser(FileEntity file, User sharedWithUser);
+
+        List<Share> findBySharedWithUser(User sharedWithUser);
 }

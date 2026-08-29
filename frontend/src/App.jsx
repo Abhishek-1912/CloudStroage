@@ -4,6 +4,7 @@ import SignupPage from './pages/SignupPage';
 import DrivePage from './pages/DrivePage';
 import ProtectedRoute from './components/ProtectedRoute';
 import TrashPage from './pages/TrashPage';
+import StarredPage from './pages/StarredPage';
 
 function App() {
   return (
@@ -38,6 +39,15 @@ function App() {
 />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
+
+        <Route
+  path="/starred"
+  element={
+    <ProtectedRoute>
+      <StarredPage />
+    </ProtectedRoute>
+  }
+/>
       </Routes>
     </BrowserRouter>
   );

@@ -1,6 +1,7 @@
 package com.cloudstorage.backend.controller;
 
 import com.cloudstorage.backend.dto.CreateShareRequest;
+import com.cloudstorage.backend.dto.FileResponse;
 import com.cloudstorage.backend.dto.ShareResponse;
 import com.cloudstorage.backend.model.User;
 import com.cloudstorage.backend.repository.UserRepository;
@@ -43,5 +44,10 @@ public class ShareController {
     public ResponseEntity<Void> revoke(Authentication authentication, @PathVariable UUID id) {
         shareService.revokeShare(currentUser(authentication), id);
         return ResponseEntity.noContent().build();
+    }
+
+        @GetMapping("/shared-with-me")
+    public ResponseEntity<List<FileResponse>> sharedWithMe(Authentication authentication) {
+        return ResponseEntity.ok(shareService.listSharedWithMe(currentUser(authentication)));
     }
 }

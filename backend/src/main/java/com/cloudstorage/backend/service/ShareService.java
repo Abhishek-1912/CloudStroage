@@ -1,6 +1,7 @@
 package com.cloudstorage.backend.service;
 
 import com.cloudstorage.backend.dto.CreateShareRequest;
+import com.cloudstorage.backend.dto.FileResponse;
 import com.cloudstorage.backend.dto.ShareResponse;
 import com.cloudstorage.backend.model.FileEntity;
 import com.cloudstorage.backend.model.Share;
@@ -10,6 +11,8 @@ import com.cloudstorage.backend.repository.ShareRepository;
 import com.cloudstorage.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+
 
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +25,7 @@ public class ShareService {
     private final ShareRepository shareRepository;
     private final FileRepository fileRepository;
     private final UserRepository userRepository;
+    private final StorageService storageService;
 
     public ShareResponse createShare(User owner, CreateShareRequest request) {
         FileEntity file = fileRepository.findById(request.getFileId())
@@ -85,5 +89,16 @@ public class ShareService {
                 share.getRole(),
                 share.getCreatedAt()
         );
+    }
+
+        public List<FileResponse> listSharedWithMe(User user) {
+        return shareRepository.findBySharedWithUser(user).stream()
+                .map(s -> {
+                    FileEntity f = s.getFile();
+                    String downloadUrl = storageService.generateDownloadUrl(f.getStorageKey(), 3600);
+                    return new FileResponse(f.getId(), f.getName(), f.getSizeBytes(),
+                            f.getMimeType(), downloadUrl, f.getCreatedAt());
+                })
+                .collect(Collectors.toList());
     }
 }

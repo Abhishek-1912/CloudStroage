@@ -41,6 +41,15 @@ export default function Sidebar() {
           >
             My Drive
           </Link>
+
+          <Link
+  to="/starred"
+  onClick={() => setOpen(false)}
+  className="block px-3 py-2 rounded-lg text-sm font-medium text-slate-500 hover:bg-slate-50"
+>
+  Starred
+</Link>
+
           <Link
             to="/trash"
             onClick={() => setOpen(false)}

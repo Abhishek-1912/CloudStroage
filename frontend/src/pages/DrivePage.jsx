@@ -16,6 +16,11 @@ import { renameFolder, trashFolder } from '../services/folderService';
 import { renameFile, trashFile } from '../services/fileService';
 import { starFile, unstarFile, getStarred } from '../services/starService';
 
+import FolderListView from '../components/FolderListView';
+import ViewToggle from '../components/ViewToggle';
+
+
+
 function sortItems(items, sortBy) {
   const copy = [...items];
   if (sortBy === 'name') {
@@ -38,6 +43,8 @@ export default function DrivePage() {
   const [searching, setSearching] = useState(false);
   const queryClient = useQueryClient();
   const [starredIds, setStarredIds] = useState(new Set());
+
+  const [view, setView] = useState('grid');
 
   useEffect(() => {
   getStarred().then((res) => {
@@ -130,8 +137,9 @@ const activeFiles = (searchResults ? searchResults.files : data?.data?.files ?? 
 
 
   return (
-    <div className="flex" flex-col md:flex-row>
-      <Sidebar />
+<div className="flex flex-col md:flex-row">
+    
+          <Sidebar />
       <main className="flex-1 p-8">
         <SearchBar onSearch={handleSearch} onClear={handleClearSearch} />
 
@@ -145,22 +153,40 @@ const activeFiles = (searchResults ? searchResults.files : data?.data?.files ?? 
         {!searchResults && <CreateFolderButton parentFolderId={folderId} />}
         {!searchResults && <UploadZone folderId={folderId} />}
 
-        <SortControl sortBy={sortBy} onChange={setSortBy} />
+        
+        <div className="flex items-center justify-between mb-4">
+  <SortControl sortBy={sortBy} onChange={setSortBy} />
+  <ViewToggle view={view} onChange={setView} />
+</div>
 
         {(isLoading || searching) && <p className="text-slate-400 text-sm">Loading...</p>}
         {error && <p className="text-red-600 text-sm">Failed to load folder contents.</p>}
 
-<FolderGrid
-  folders={sortItems(activeFolders, sortBy)}
-  files={sortItems(activeFiles, sortBy)}
-  onFileClick={handleFileClick}
-  onShareClick={setSharingFile}
-  onRenameFolder={handleRenameFolder}
-  onTrashFolder={handleTrashFolder}
-  onRenameFile={handleRenameFile}
-  onTrashFile={handleTrashFile}
-  onStarToggle={handleStarToggle}
-/>
+{view === 'grid' ? (
+  <FolderGrid
+    folders={sortItems(activeFolders, sortBy)}
+    files={sortItems(activeFiles, sortBy)}
+    onFileClick={handleFileClick}
+    onShareClick={setSharingFile}
+    onRenameFolder={handleRenameFolder}
+    onTrashFolder={handleTrashFolder}
+    onRenameFile={handleRenameFile}
+    onTrashFile={handleTrashFile}
+    onStarToggle={handleStarToggle}
+  />
+) : (
+  <FolderListView
+    folders={sortItems(activeFolders, sortBy)}
+    files={sortItems(activeFiles, sortBy)}
+    onFileClick={handleFileClick}
+    onShareClick={setSharingFile}
+    onRenameFolder={handleRenameFolder}
+    onTrashFolder={handleTrashFolder}
+    onRenameFile={handleRenameFile}
+    onTrashFile={handleTrashFile}
+    onStarToggle={handleStarToggle}
+  />
+)}
       </main>
 
       {previewFile && (
