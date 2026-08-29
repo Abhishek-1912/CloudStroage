@@ -6,11 +6,14 @@ import ProtectedRoute from './components/ProtectedRoute';
 import TrashPage from './pages/TrashPage';
 import StarredPage from './pages/StarredPage';
 import SharedPage from './pages/SharedPage';
+import HomePage from './pages/HomePage';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        <Route path="/" element={<HomePage />} />
+
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route
